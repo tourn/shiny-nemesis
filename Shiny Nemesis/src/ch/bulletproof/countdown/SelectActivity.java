@@ -35,7 +35,7 @@ public class SelectActivity extends Activity {
 				int minute = Integer.parseInt(minuteView.getText().toString());
 				
 				Intent intent = new Intent(ctx, CountdownActivity.class);
-				intent.putExtra(CountdownActivity.MINUTE, minute);
+				intent.putExtra(CountdownActivity.MINUTES, minute);
 				startActivity(intent);
 				
 			}
