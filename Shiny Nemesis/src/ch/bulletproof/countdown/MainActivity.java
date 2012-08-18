@@ -31,9 +31,9 @@ public class MainActivity extends Activity implements OnTouchListener {
 		long endTime = endCalendar.getTimeInMillis(); 
 		super.onCreate(savedInstanceState);
 		
-		setContentView(R.layout.activity_main);
-		View view = findViewById(R.id.foo);
-		view.setOnTouchListener(this);
+//		setContentView(R.layout.activity_main);
+//		View view = findViewById(R.id.foo);
+//		view.setOnTouchListener(this);
 		
 		// Set the hardware buttons to control the music
 		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
