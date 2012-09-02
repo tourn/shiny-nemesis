@@ -82,24 +82,28 @@ public class CountdownActivity extends Activity implements OnTouchListener{
 		
 		long now = Calendar.getInstance().getTimeInMillis();
 		
-		new CountDownTimer(endTime - now, 1000) {
+		new CountDownTimer(endTime - now + 1000, 1000) {
 			TextView text = (TextView) findViewById(R.id.countdown);
 			
 			public void onTick(long millisUntilFinished) {
 				Calendar remainingTime = Calendar.getInstance();
-				remainingTime.setTimeInMillis(millisUntilFinished);
+				remainingTime.setTimeInMillis(millisUntilFinished - 1000);
 				
 				text.setText(remainingTime.get(Calendar.MINUTE) + ":" + remainingTime.get(Calendar.SECOND));
 		     }
 
 		     public void onFinish() {
-		    	 
+		    	Calendar remainingTime = Calendar.getInstance();
+				remainingTime.setTimeInMillis(0);
+					
+				text.setText(remainingTime.get(Calendar.MINUTE) + ":" + remainingTime.get(Calendar.SECOND));
 		     }
 		  }.start();
 	}
 	
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
+		timer.cancel();
 		finish();
 		return true;
 	}
