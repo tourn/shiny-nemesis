@@ -1,55 +1,65 @@
 package ch.bulletproof.countdown;
 
+import java.io.IOException;
 import java.util.HashSet;
 
 import android.app.Activity;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.media.SoundPool.OnLoadCompleteListener;
+import android.util.Log;
 
-public class Player {
-	private AudioManager audioManager;
-	
-	private SoundPool soundPool;
-	
-	private boolean loaded = false;
+public class Player extends MediaPlayer{
+	private String currentVoiceSetDir;
+	private String baseVoiceSetDir;
 	
 	private HashSet<Sound> sounds = new HashSet<Sound>();
 	
-	public Player(Activity activity){
-	    this.audioManager = (AudioManager) activity.getSystemService(Activity.AUDIO_SERVICE);
-	    soundPool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
+	public Player(String baseVoiceSetDir, String currentVoiceSetDir){
+		this.baseVoiceSetDir = baseVoiceSetDir;
+		this.currentVoiceSetDir = currentVoiceSetDir;
 
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.min5, 1), 5*60));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.min3, 1), 3*60));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.min2, 1), 2*60));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.min1, 1), 1*60));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec30, 1), 30));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec20, 1), 20));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec10, 1), 10));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec9, 1), 9));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec8, 1), 8));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec7, 1), 7));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec6, 1), 6));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec5, 1), 5));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec4, 1), 4));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec3, 1), 3));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec2, 1), 2));
-	    sounds.add(new Sound(soundPool.load(activity, R.raw.sec1, 1), 1));
+		sounds.add(new Sound(60*5, baseVoiceSetDir + "/" + currentVoiceSetDir + "/min5.wav"));
+		sounds.add(new Sound(60*3, baseVoiceSetDir + "/" + currentVoiceSetDir + "/min3.wav"));
+		sounds.add(new Sound(60*2, baseVoiceSetDir + "/" + currentVoiceSetDir + "/min2.wav"));
+		sounds.add(new Sound(60*1, baseVoiceSetDir + "/" + currentVoiceSetDir + "/min1.wav"));
+		sounds.add(new Sound(30, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec30.wav"));
+		sounds.add(new Sound(20, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec20.wav"));
+		sounds.add(new Sound(10, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec10.wav"));
+		sounds.add(new Sound(9, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec9.wav"));
+		sounds.add(new Sound(8, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec8.wav"));
+		sounds.add(new Sound(7, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec7.wav"));
+		sounds.add(new Sound(6, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec6.wav"));
+		sounds.add(new Sound(5, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec5.wav"));
+		sounds.add(new Sound(4, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec4.wav"));
+		sounds.add(new Sound(3, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec3.wav"));
+		sounds.add(new Sound(2, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec2.wav"));
+		sounds.add(new Sound(1, baseVoiceSetDir + "/" + currentVoiceSetDir + "/sec1.wav"));
 	}
 	
 	public HashSet<Sound> getSounds(){
 		return sounds;
 	}
 	
-	public boolean play(int soundID){
-		if(soundID == 0)
+	public boolean play(Sound sound){
+		Log.d("Player", "Play Sound: "+sound.getFileName());
+		reset();
+		if(isPlaying())
 			return false;
-		float actualVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-		float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-		float volume = actualVolume / maxVolume;
 		
-		soundPool.play(soundID, volume, volume, 1, 0, 1f);
+		try	{
+			setDataSource(sound.getFileName());
+			prepare();
+			Log.d("Player", "Prepared");
+		} catch (IOException e){
+			//TODO Exception handling
+			Log.d("Player", "IOException", e);
+			return false;
+		}
+		
+		start();
+		Log.d("Player", "Started");
 		
 		return true;
 	}

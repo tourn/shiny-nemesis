@@ -9,9 +9,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.TextView;
 
 public class CountdownActivity extends Activity implements OnTouchListener{
 	public static final String MINUTES = "tasty pie";
@@ -19,6 +21,7 @@ public class CountdownActivity extends Activity implements OnTouchListener{
 	Player player;
 	boolean loaded = false;
 	Timer timer;
+	long endTime;
   
 	/** Called when the activity is first created. */
 
@@ -37,13 +40,13 @@ public class CountdownActivity extends Activity implements OnTouchListener{
 		Calendar endCalendar = Calendar.getInstance();
 		if(endCalendar.get(Calendar.MINUTE) >= minutes)
 			endCalendar.add(Calendar.HOUR, 1);
-		
+		endCalendar.set(Calendar.SECOND, 0);
 		endCalendar.set(Calendar.MINUTE, minutes);
 		
 		timer = new Timer();
-		player = new Player(this);
+		player = new Player(Setup.BASE_VOICESET_DIR,Setup.DEFAULT_VOICESET_DIR);
 		
-		long endTime = endCalendar.getTimeInMillis(); 
+		endTime = endCalendar.getTimeInMillis(); 
 		super.onCreate(savedInstanceState);
 		
 		// Set the hardware buttons to control the music
@@ -51,7 +54,9 @@ public class CountdownActivity extends Activity implements OnTouchListener{
 		
 		//Schedule sounds
 		for (Sound sound : player.getSounds()) {
-			timer.schedule(new SoundTask(sound), new Date(endTime - 1000 * sound.getSecToEnd()));
+			long schedule = endTime - 1000 * sound.getSecToEnd(); 
+			if(schedule >= Calendar.getInstance().getTimeInMillis())
+				timer.schedule(new SoundTask(sound), new Date(schedule));
 		}
 		
 		timer.schedule(new TimerTask(){
@@ -60,6 +65,37 @@ public class CountdownActivity extends Activity implements OnTouchListener{
 				finish();
 			}
 		}, new Date(endTime));
+		
+//		timer.schedule(new TimerTask(){
+//
+//			@Override
+//			public void run() {
+//				TextView text = (TextView) findViewById(R.id.countdown);
+//				long now = Calendar.getInstance().getTimeInMillis();
+//				
+//				Calendar remainingTime = Calendar.getInstance();
+//				remainingTime.setTimeInMillis(endTime - now);
+//				
+//				text.setText(remainingTime.get(Calendar.MINUTE) + ":" + remainingTime.get(Calendar.SECOND));
+//			}
+//		}, 0, 1000);
+		
+		long now = Calendar.getInstance().getTimeInMillis();
+		
+		new CountDownTimer(endTime - now, 1000) {
+			TextView text = (TextView) findViewById(R.id.countdown);
+			
+			public void onTick(long millisUntilFinished) {
+				Calendar remainingTime = Calendar.getInstance();
+				remainingTime.setTimeInMillis(millisUntilFinished);
+				
+				text.setText(remainingTime.get(Calendar.MINUTE) + ":" + remainingTime.get(Calendar.SECOND));
+		     }
+
+		     public void onFinish() {
+		    	 
+		     }
+		  }.start();
 	}
 	
 	@Override
@@ -77,7 +113,7 @@ public class CountdownActivity extends Activity implements OnTouchListener{
 		
 		@Override
 		public void run() {
-			player.play(sound.getID());
+			player.play(sound);
 		}
 	}
 }

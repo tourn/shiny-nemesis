@@ -1,19 +1,19 @@
 package ch.bulletproof.countdown;
 
 public class Sound {
-	private int id = 0;
 	private int secToEnd;
+	private String fileName;
 	
-	public Sound(int id, int secToEnd){
-		this.id = id;
+	public Sound(int secToEnd, String fileName){
 		this.secToEnd = secToEnd;
-	}
-	
-	public int getID(){
-		return id;
+		this.fileName = fileName;
 	}
 	
 	public int getSecToEnd(){
 		return secToEnd;
+	}
+	
+	public String getFileName(){
+		return fileName;
 	}
 }
