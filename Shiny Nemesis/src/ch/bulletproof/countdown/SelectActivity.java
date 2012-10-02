@@ -3,18 +3,23 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,21 +49,28 @@ public class SelectActivity extends Activity {
 			public void onClick(View v) {
 				TextView minuteView = (TextView) findViewById(R.id.minute);
 				
-				//TODO validation
 				int minute = Integer.parseInt(minuteView.getText().toString());
-				if( minute >= 0 && minute <= 59){
-				
-					appendRecentTime(minute); //save recent_times to prefs
-					
-					Intent intent = new Intent(ctx, CountdownActivity.class);
-					intent.putExtra(CountdownActivity.MINUTES, minute);
-					startActivity(intent);
-				} else {
-					Toast.makeText(getApplicationContext(), "Invalid minute", Toast.LENGTH_SHORT).show();
-				}
+				startCountdown(minute);
 				
 			}
 		});
+	}
+	
+	/**
+	 * Starts countdown up to the given minute
+	 * @param minute
+	 */
+	private void startCountdown(int minute){
+		if( minute >= 0 && minute <= 59){
+		
+			appendRecentTime(minute); //save recent_times to prefs
+			
+			Intent intent = new Intent(ctx, CountdownActivity.class);
+			intent.putExtra(CountdownActivity.MINUTES, minute);
+			startActivity(intent);
+		} else {
+			Toast.makeText(getApplicationContext(), "Invalid minute", Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	public void onResume(){
@@ -66,8 +78,29 @@ public class SelectActivity extends Activity {
 		//populate the recent list on resume
 		String[] recentTimes = getRecentTimes();
 		Log.d(SelectActivity.class.toString(), "got recent times, gonna display "  + recentTimes.toString());
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, recentTimes);
-		ListView list = (ListView) findViewById(R.id.recent_times);
+		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, recentTimes){
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent){
+				View view = super.getView(position, convertView, parent);
+//				view.setActivated(true);
+				//XXX why is this necessary?
+				TextView textView = (TextView) view.findViewById(android.R.id.text1);
+				textView.setTextColor(Color.BLACK);
+				return view;
+			}
+			
+		};
+		GridView list = (GridView) findViewById(R.id.recent_times);
+		list.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				String minute_s = adapter.getItem(position);
+				startCountdown(Integer.parseInt(minute_s));
+				
+			}
+		});
+//		list.setActivated(true);
 		list.setAdapter(adapter);
 	}
 	
