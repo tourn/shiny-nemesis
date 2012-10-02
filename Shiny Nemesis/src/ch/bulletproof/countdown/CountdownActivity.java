@@ -54,7 +54,8 @@ public class CountdownActivity extends Activity implements OnTouchListener{
 		
 		//Schedule sounds
 		for (Sound sound : player.getSounds()) {
-			long schedule = endTime - 1000 * sound.getSecToEnd(); 
+//			long schedule = endTime - 1000 * sound.getSecToEnd();
+			long schedule = endTime - 1000 * sound.getSecToEnd() - 1000;
 			if(schedule >= Calendar.getInstance().getTimeInMillis())
 				timer.schedule(new SoundTask(sound), new Date(schedule));
 		}
