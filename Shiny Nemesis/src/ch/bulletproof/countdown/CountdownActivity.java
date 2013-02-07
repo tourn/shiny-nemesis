@@ -6,11 +6,15 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -65,6 +69,7 @@ public class CountdownActivity extends Activity{
 		
 		displayCountdown(endTime);
 		
+		buildNotification();
 	}
 	
 	/**
@@ -107,6 +112,20 @@ public class CountdownActivity extends Activity{
 		out.set(Calendar.SECOND, 0);
 		out.set(Calendar.MINUTE, minute);
 		return out;
+	}
+	
+	private void buildNotification(){
+		Intent notificationIntent = new Intent(this, CountdownActivity.class);
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+			.setContentTitle(getString(R.string.app_name))
+			.setContentText("The Nemesis is running...")
+			.setSmallIcon(R.drawable.ic_stat_general)
+			.setOngoing(true)
+			.setContentIntent(contentIntent);
+		NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		manager.notify(0, builder.build());
+			
 	}
 	
 	/**
