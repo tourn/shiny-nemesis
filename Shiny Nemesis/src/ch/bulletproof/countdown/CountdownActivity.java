@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -29,9 +30,11 @@ import android.widget.TextView;
  */
 public class CountdownActivity extends Activity{
 	public static final String MINUTES = "minutes";
+	private static final String LOG_TAG = "Countdown";
 	
 	private Player player;
 	private Timer timer;
+	
   
 	@Override
   	public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,7 @@ public class CountdownActivity extends Activity{
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				timer.cancel();
+				cancelNotification();
 				finish();
 				return true;
 			}
@@ -128,6 +132,12 @@ public class CountdownActivity extends Activity{
 			
 	}
 	
+	private void cancelNotification(){
+		NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		manager.cancel(0);
+		Log.d(LOG_TAG,"Canceling notification");
+	}
+	
 	/**
 	 * @author tourn
 	 * A TimerTask to play a sound from a SoundPlayer.
@@ -169,6 +179,7 @@ public class CountdownActivity extends Activity{
 		timer.schedule(new TimerTask(){
 			@Override
 			public void run() {
+				cancelNotification();
 				wl.release();
 				finish();
 			}
