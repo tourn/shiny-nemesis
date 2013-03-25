@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.PowerManager;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -133,6 +134,10 @@ public class CountdownActivity extends Activity{
 	private void scheduleSounds(long endTime){
 		timer = new Timer();
 		player = new Player(Setup.BASE_VOICESET_DIR,Setup.DEFAULT_VOICESET_DIR);
+		PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+		final PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "shiny nemesis");
+		
+		wl.acquire();
 		
 		//Schedule sounds
 		for (Sound sound : player.getSounds()) {
@@ -145,6 +150,7 @@ public class CountdownActivity extends Activity{
 		timer.schedule(new TimerTask(){
 			@Override
 			public void run() {
+				wl.release();
 				finish();
 			}
 		}, new Date(endTime));
