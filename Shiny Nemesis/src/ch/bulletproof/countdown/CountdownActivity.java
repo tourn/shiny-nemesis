@@ -1,21 +1,11 @@
 package ch.bulletproof.countdown;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.PowerManager;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -32,9 +22,6 @@ public class CountdownActivity extends Activity{
 	public static final String MINUTES = "minutes";
 	private static final String LOG_TAG = "Countdown";
 
-	private Player player;
-	private Timer timer;
-	private PowerManager.WakeLock wakeLock;
 
 
 	@Override
@@ -56,7 +43,8 @@ public class CountdownActivity extends Activity{
 
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				timer.cancel();
+				Intent intent = new Intent(getApplicationContext(), CountdownService.class);
+				stopService(intent);
 				finish();
 				return true;
 			}
@@ -69,15 +57,12 @@ public class CountdownActivity extends Activity{
 		// make a calendar pointing to the given minute in this hour
 		long endTime = getNextMinuteOccurrence(minutes).getTimeInMillis();
 
-		PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-		wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "shiny nemesis");
-		wakeLock.acquire();
-
-		scheduleSounds(endTime);
-
 		displayCountdown(endTime);
 
-		buildNotification();
+		//start the service to play the sound
+		Intent serviceIntent = new Intent(this, CountdownService.class);
+		serviceIntent.putExtra(CountdownService.EXTRA_END_TIME, endTime);
+		startService(serviceIntent);
 	}
 
 	/**
@@ -104,6 +89,7 @@ public class CountdownActivity extends Activity{
 				remainingTime.setTimeInMillis(0);
 
 				text.setText(remainingTime.get(Calendar.MINUTE) + ":" + remainingTime.get(Calendar.SECOND));
+				finish();
 			}
 		}.start();
 	}
@@ -124,72 +110,4 @@ public class CountdownActivity extends Activity{
 		return out;
 	}
 
-	private void buildNotification(){
-		Intent notificationIntent = new Intent(this, CountdownActivity.class);
-		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-		.setContentTitle(getString(R.string.app_name))
-		.setContentText("The Nemesis is running...")
-		.setSmallIcon(R.drawable.ic_stat_general)
-		.setOngoing(true)
-		.setContentIntent(contentIntent);
-		NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		manager.notify(0, builder.build());
-
-	}
-
-	private void cancelNotification(){
-		NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-		manager.cancel(0);
-		Log.d(LOG_TAG,"Canceling notification");
-	}
-
-	/**
-	 * @author tourn
-	 * A TimerTask to play a sound from a SoundPlayer.
-	 *
-	 */
-	private class SoundTask extends TimerTask{
-		Sound sound;
-
-		public SoundTask(Sound sound){
-			this.sound = sound;
-		}
-
-		@Override
-		public void run() {
-			player.play(sound);
-		}
-	}
-
-	/**
-	 * Schedules sounds of the default voiceset
-	 * @param endTime
-	 */
-	private void scheduleSounds(long endTime){
-		timer = new Timer();
-		player = new Player(Setup.BASE_VOICESET_DIR,Setup.DEFAULT_VOICESET_DIR);
-
-		//Schedule sounds
-		for (Sound sound : player.getSounds()) {
-			//			long schedule = endTime - 1000 * sound.getSecToEnd();
-			long schedule = endTime - 1000 * sound.getSecToEnd() - 1000;
-			if(schedule >= Calendar.getInstance().getTimeInMillis())
-				timer.schedule(new SoundTask(sound), new Date(schedule));
-		}
-
-		timer.schedule(new TimerTask(){
-			@Override
-			public void run() {
-				finish();
-			}
-		}, new Date(endTime));
-	}
-
-	@Override
-	public void finish() {
-		wakeLock.release();
-		cancelNotification();
-		super.finish();
-	}
 }
