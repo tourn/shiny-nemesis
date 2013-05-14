@@ -35,16 +35,23 @@ public class CountdownService extends Service {
 	 */
 	private void scheduleSounds(long endTime){
 		timer = new Timer();
-		player = new Player(Setup.BASE_VOICESET_DIR,Setup.DEFAULT_VOICESET_DIR);
+		
+		Announcement[] announcements = new VibrateAnnouncer(this).generateAnnouncements();
+		for(final Announcement announcement : announcements){
+			long schedule = endTime - 1000 * announcement.getSecondsToEnd() - 1000;
+			if(schedule >= Calendar.getInstance().getTimeInMillis()){
+				timer.schedule(new TimerTask(){
 
-		//Schedule sounds
-		for (Sound sound : player.getSounds()) {
-			//			long schedule = endTime - 1000 * sound.getSecToEnd();
-			long schedule = endTime - 1000 * sound.getSecToEnd() - 1000;
-			if(schedule >= Calendar.getInstance().getTimeInMillis())
-				timer.schedule(new SoundTask(sound), new Date(schedule));
+					@Override
+					public void run() {
+						announcement.play();
+						
+					}
+					
+				}, new Date(schedule));
+			} 
 		}
-
+		
 		timer.schedule(new TimerTask(){
 			@Override
 			public void run() {
@@ -68,25 +75,7 @@ public class CountdownService extends Service {
 		startForeground(1, buildNotification());
 		return super.onStartCommand(intent, flags, startId);
 	}
-
-	/**
-	 * @author tourn
-	 * A TimerTask to play a sound from a SoundPlayer.
-	 *
-	 */
-	private class SoundTask extends TimerTask{
-		Sound sound;
-
-		public SoundTask(Sound sound){
-			this.sound = sound;
-		}
-
-		@Override
-		public void run() {
-			player.play(sound);
-		}
-	}
-
+	
 	@Override
 	public void onCreate() {
 	}
