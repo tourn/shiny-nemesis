@@ -80,18 +80,28 @@ public class CountdownActivity extends Activity{
 				Calendar remainingTime = Calendar.getInstance();
 				remainingTime.setTimeInMillis(millisUntilFinished - 1000);
 
-				text.setText(remainingTime.get(Calendar.MINUTE) + ":" + remainingTime.get(Calendar.SECOND));
+				text.setText(remainingTime.get(Calendar.MINUTE) + ":" + secondsAsString(remainingTime.get(Calendar.SECOND)));
 			}
 
 			@Override
 			public void onFinish() {
 				Calendar remainingTime = Calendar.getInstance();
 				remainingTime.setTimeInMillis(0);
-
-				text.setText(remainingTime.get(Calendar.MINUTE) + ":" + remainingTime.get(Calendar.SECOND));
+				text.setText("0:00");
 				finish();
 			}
 		}.start();
+	}
+	
+	/**
+	 * Returns the given second integer as a zero-padded string
+	 * @param seconds
+	 * @return
+	 */
+	private String secondsAsString(int seconds){
+		String out = Integer.valueOf(seconds).toString();
+		if(out.length() == 1) return "0" + out;
+		return out;
 	}
 
 	/**
