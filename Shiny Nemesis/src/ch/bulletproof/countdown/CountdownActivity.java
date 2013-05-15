@@ -98,7 +98,7 @@ public class CountdownActivity extends Activity{
 	 * @param seconds
 	 * @return
 	 */
-	private String secondsAsString(int seconds){
+	public static String secondsAsString(int seconds){
 		String out = Integer.valueOf(seconds).toString();
 		if(out.length() == 1) return "0" + out;
 		return out;
