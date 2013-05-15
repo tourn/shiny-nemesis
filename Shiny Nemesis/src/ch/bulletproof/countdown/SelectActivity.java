@@ -51,6 +51,7 @@ public class SelectActivity extends Activity {
 				
 				int minute = Integer.parseInt(minuteView.getText().toString());
 				startCountdown(minute);
+				minuteView.setText("");
 				
 			}
 		});
