@@ -17,6 +17,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
@@ -34,6 +35,7 @@ public class SelectActivity extends Activity {
 	
 	private static final String PREF_RECENT_TIMES = "recent";
 	private static final String PREF_RECENT_TIMES_SEPARATOR = ";";
+	private String[] recentTimes;
 	private Context ctx = this;
 	
 	public void onCreate(Bundle savedInstanceState){
@@ -77,7 +79,7 @@ public class SelectActivity extends Activity {
 	public void onResume(){
 		super.onResume();
 		//populate the recent list on resume
-		String[] recentTimes = getRecentTimes();
+		recentTimes = getRecentTimes();
 		Log.d(SelectActivity.class.toString(), "got recent times, gonna display "  + recentTimes.toString());
 		final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, recentTimes){
 			@Override
@@ -87,6 +89,7 @@ public class SelectActivity extends Activity {
 				//XXX why is this necessary?
 				TextView textView = (TextView) view.findViewById(android.R.id.text1);
 				textView.setTextColor(Color.BLACK);
+				
 				return view;
 			}
 			
@@ -99,6 +102,17 @@ public class SelectActivity extends Activity {
 				String minute_s = adapter.getItem(position);
 				startCountdown(Integer.parseInt(minute_s));
 				
+			}
+		});
+		list.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				TextView textView = (TextView) view.findViewById(android.R.id.text1);
+				clearRecentTime(Integer.valueOf(textView.getText().toString()));
+				recentTimes=getRecentTimes();
+				adapter.notifyDataSetChanged();
+				return true;
 			}
 		});
 //		list.setActivated(true);
@@ -143,6 +157,42 @@ public class SelectActivity extends Activity {
 		
 		//TODO maybe add a cap, so the list doesn't get endless?
 		
+	}
+	
+	/**
+	 * Removes all recent time entries
+	 */
+	private void clearRecentTimes(){
+		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+		Editor prefEditor = prefs.edit();
+		prefEditor.remove(PREF_RECENT_TIMES);
+		prefEditor.commit();
+	}
+	
+	/**
+	 * Removes the given recent time entry
+	 * @param in
+	 */
+	private void clearRecentTime(Integer in){
+		SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+		Editor prefEditor = prefs.edit();
+		HashSet<String> recents = new LinkedHashSet<String>();
+		for(String recent : getRecentTimes()){
+			if(Integer.valueOf(recent) == in) continue;
+			recents.add(recent);
+		}
+		StringBuffer cat = new StringBuffer();
+		for(Iterator<String> i = recents.iterator(); i.hasNext(); ){
+			String recent = i.next();
+			cat.append(recent);
+			if(i.hasNext())
+				cat.append(PREF_RECENT_TIMES_SEPARATOR);
+			
+			
+		}
+		prefEditor.putString(PREF_RECENT_TIMES, cat.toString());
+		Log.d("SelectActivity","saving " + cat.toString());
+		prefEditor.commit();
 	}
 
 }
