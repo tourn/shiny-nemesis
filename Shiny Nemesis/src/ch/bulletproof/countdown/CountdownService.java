@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 
 public class CountdownService extends Service {
@@ -95,6 +96,7 @@ public class CountdownService extends Service {
 
 		Log.d(LOG_TAG,"Starting Countdown Service in Foreground");
 		startForeground(1, buildNotification(endTime));
+		Toast.makeText(this, getFormattedTimeRemaining(endTime) + " remaining", Toast.LENGTH_SHORT).show();
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -103,23 +105,28 @@ public class CountdownService extends Service {
 	}
 
 	private Notification buildNotification(long endTime){
-		long millisUntilFinished = endTime - Calendar.getInstance().getTimeInMillis();
+		String remainingString = getFormattedTimeRemaining(endTime);
 		
-		Calendar remainingTime = Calendar.getInstance();
-		remainingTime.setTimeInMillis(millisUntilFinished - 1000);
-		String remainingString = remainingTime.get(Calendar.MINUTE) + ":" + CountdownActivity.secondsAsString(remainingTime.get(Calendar.SECOND));
-		
-		Intent notificationIntent = new Intent(this, CountdownActivity.class);
+		Intent notificationIntent = new Intent(this, DialogActivity.class);
+		notificationIntent.putExtra(DialogActivity.INTENT_EXTRA_KILL, true);
 		PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
 		.setContentTitle(getString(R.string.app_name))
-		.setContentText(remainingString + " left")
+		.setContentText(remainingString + " left. Tap to cancel.")
 		.setSmallIcon(R.drawable.ic_stat_general)
 		.setOngoing(true)
 		.setWhen(endTime)
 		.setContentIntent(contentIntent);
 		return builder.build();
+	}
+	
+	private String getFormattedTimeRemaining(long endTime){
+		long millisUntilFinished = endTime - Calendar.getInstance().getTimeInMillis();
+		
+		Calendar remainingTime = Calendar.getInstance();
+		remainingTime.setTimeInMillis(millisUntilFinished - 1000);
+		return remainingTime.get(Calendar.MINUTE) + ":" + CountdownActivity.secondsAsString(remainingTime.get(Calendar.SECOND));
 	}
 
 	@Override
