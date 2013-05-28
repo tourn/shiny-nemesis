@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="app_name">Shiny Nemesis</string>
@@ -6,5 +7,7 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="btn_new">New</string>
     <string name="btn_go">GO!</string>
+    <string name="title_activity_dialog">DialogActivity</string>
+    <string name="action_settings">Settings</string>
 
 </resources>
