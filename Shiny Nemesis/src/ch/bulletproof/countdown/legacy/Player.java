@@ -1,4 +1,4 @@
-package ch.bulletproof.countdown;
+package ch.bulletproof.countdown.legacy;
 
 import java.io.IOException;
 import java.util.HashSet;

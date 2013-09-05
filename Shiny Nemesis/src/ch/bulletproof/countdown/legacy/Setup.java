@@ -1,10 +1,13 @@
-package ch.bulletproof.countdown;
+package ch.bulletproof.countdown.legacy;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import ch.bulletproof.countdown.R;
+import ch.bulletproof.countdown.R.raw;
 
 import android.content.Context;
 import android.os.Environment;
@@ -13,6 +16,7 @@ import android.util.Log;
 public class Setup {
 	public static final String DEFAULT_VOICESET_DIR = "default";
 	public static final String BASE_VOICESET_DIR = Environment.getExternalStorageDirectory().getPath() + "/ShinyNemesis/VoiceSets";
+	private static final String LOG_TAG = "Setup";
 	
 	public static void init(Context context){
 		File defaultDir = new File(BASE_VOICESET_DIR + "/" + DEFAULT_VOICESET_DIR);
@@ -41,12 +45,12 @@ public class Setup {
 		writeSoundToDir(R.raw.sec1, "sec1.wav", context);
 		
 		content = defaultDir.list();
-		Log.d(SelectActivity.class.toString(), "Files in Dir:");
+		Log.d(LOG_TAG, "Files in Dir:");
 		for (String file : content) {
-			Log.d(SelectActivity.class.toString(), file);
+			Log.d(LOG_TAG, file);
 		}
 		
-		Log.d(SelectActivity.class.toString(), "finished Setup");
+		Log.d(LOG_TAG, "finished Setup");
 	}
 	
 	private static void writeSoundToDir(int soundFile, String filename, Context context) {

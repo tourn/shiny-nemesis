@@ -23,7 +23,6 @@ public class CountdownService extends Service {
 
 	private static final String LOG_TAG = "CountdownService";
 
-	private Player player;
 	private Timer timer;
 	private PowerManager.WakeLock wakeLock;
 	private NotificationManager notificationManger;
@@ -83,6 +82,17 @@ public class CountdownService extends Service {
 			}
 		}.start();
 	}
+	
+	/**
+	 * Returns the given second integer as a zero-padded string
+	 * @param seconds
+	 * @return
+	 */
+	public static String secondsAsString(int seconds){
+		String out = Integer.valueOf(seconds).toString();
+		if(out.length() == 1) return "0" + out;
+		return out;
+	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -126,7 +136,7 @@ public class CountdownService extends Service {
 		
 		Calendar remainingTime = Calendar.getInstance();
 		remainingTime.setTimeInMillis(millisUntilFinished - 1000);
-		return remainingTime.get(Calendar.MINUTE) + ":" + CountdownActivity.secondsAsString(remainingTime.get(Calendar.SECOND));
+		return remainingTime.get(Calendar.MINUTE) + ":" + secondsAsString(remainingTime.get(Calendar.SECOND));
 	}
 
 	@Override

@@ -1,7 +1,9 @@
-package ch.bulletproof.countdown;
+package ch.bulletproof.countdown.legacy;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+
+import ch.bulletproof.countdown.R;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

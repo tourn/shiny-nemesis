@@ -1,6 +1,9 @@
-package ch.bulletproof.countdown;
+package ch.bulletproof.countdown.legacy;
 
 import java.util.Calendar;
+
+import ch.bulletproof.countdown.CountdownService;
+import ch.bulletproof.countdown.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.AudioManager;
