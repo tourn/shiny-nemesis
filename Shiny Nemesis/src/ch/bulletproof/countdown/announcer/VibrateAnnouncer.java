@@ -1,4 +1,4 @@
-package ch.bulletproof.countdown;
+package ch.bulletproof.countdown.announcer;
 
 import android.app.Service;
 import android.content.Context;

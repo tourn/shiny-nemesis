@@ -4,6 +4,9 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ch.bulletproof.countdown.announcer.Announcement;
+import ch.bulletproof.countdown.announcer.SoundAnnouncer;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;

@@ -1,4 +1,4 @@
-package ch.bulletproof.countdown;
+package ch.bulletproof.countdown.announcer;
 
 
 public interface Announcer {

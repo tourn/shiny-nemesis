@@ -1,4 +1,4 @@
-package ch.bulletproof.countdown;
+package ch.bulletproof.countdown.announcer;
 
 import android.os.Vibrator;
 import android.util.Log;

@@ -1,10 +1,13 @@
-package ch.bulletproof.countdown;
+package ch.bulletproof.countdown.announcer;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import ch.bulletproof.countdown.Setup;
+import ch.bulletproof.countdown.SoundpackNotPresentException;
 
 import android.content.Context;
 import android.media.AudioManager;
