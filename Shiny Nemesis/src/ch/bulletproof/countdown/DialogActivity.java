@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
@@ -33,13 +34,16 @@ public class DialogActivity extends Activity {
 		int minute = Calendar.getInstance().get(Calendar.MINUTE);
 		numberPicker.setValue(minute + 10);
 		
+		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
+		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
+		
 		Button goButton = (Button) findViewById(R.id.buttonGo);
 		goButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				numberPicker.clearFocus();
-				startCountdown(numberPicker.getValue());
+				startCountdown(numberPicker.getValue(), vibrate.isChecked(), sound.isChecked());
 				finish();
 				
 			}
@@ -58,12 +62,14 @@ public class DialogActivity extends Activity {
 	 * Starts countdown up to the given minute
 	 * @param minute
 	 */
-	private void startCountdown(int minute){
+	private void startCountdown(int minute, boolean vibrate, boolean sound){
 		if( minute >= 0 && minute <= 59){
 			
 			long endTime = getNextMinuteOccurrence(minute).getTimeInMillis();
 			Intent serviceIntent = new Intent(this, CountdownService.class);
 			serviceIntent.putExtra(CountdownService.EXTRA_END_TIME, endTime);
+			serviceIntent.putExtra(CountdownService.EXTRA_VIBRATE, vibrate);
+			serviceIntent.putExtra(CountdownService.EXTRA_SOUND, sound);
 			startService(serviceIntent);
 		} else {
 			Toast.makeText(getApplicationContext(), "Invalid minute", Toast.LENGTH_SHORT).show();

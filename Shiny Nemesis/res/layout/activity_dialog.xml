@@ -27,4 +27,16 @@
         android:layout_height="wrap_content"
         android:text="GO" />
 
+    <CheckBox
+        android:id="@+id/cbVibrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vibrate" />
+
+    <CheckBox
+        android:id="@+id/cbSound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sound" />
+
 </LinearLayout>
