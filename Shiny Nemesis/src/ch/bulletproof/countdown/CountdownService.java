@@ -42,7 +42,13 @@ public class CountdownService extends Service {
 		timer = new Timer();
 		notificationManger = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-		Announcement[] announcements = new VibrateAnnouncer(this).generateAnnouncements();
+		//Announcement[] announcements = new VibrateAnnouncer(this).generateAnnouncements();
+		Announcement[] announcements;
+		try {
+			announcements = new SoundAnnouncer(this).generateAnnouncements();
+		} catch (SoundpackNotPresentException e) {
+			throw new RuntimeException(e);
+		}
 		for(final Announcement announcement : announcements){
 			long schedule = endTime - 1000 * announcement.getSecondsToEnd() - 1000;
 			if(schedule >= Calendar.getInstance().getTimeInMillis()){
@@ -51,7 +57,6 @@ public class CountdownService extends Service {
 					@Override
 					public void run() {
 						announcement.play();
-
 					}
 
 				}, new Date(schedule));
@@ -62,6 +67,12 @@ public class CountdownService extends Service {
 			@Override
 			public void run() {
 				//wakeLock.release();
+				try {
+					//give the last sound some time to finish
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 				stopSelf();
 			}
 		}, new Date(endTime));

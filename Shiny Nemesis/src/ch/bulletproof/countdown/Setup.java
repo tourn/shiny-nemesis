@@ -16,10 +16,12 @@ public class Setup {
 	private static final String LOG_TAG = "Setup";
 	
 	private final File root;
+	private final File soundPackRoot;
 
 	public Setup(Context context) {
 		this.context = context;
 		root = context.getApplicationContext().getExternalFilesDir(null);
+		soundPackRoot = new File(root, SOUNDPACK_DIR);
 	}
 	
 	public void verify(){
@@ -36,8 +38,7 @@ public class Setup {
 		if (!root.exists()) {
 			root.mkdirs();
 		}
-		File defaultSoundpack = new File(root, SOUNDPACK_DIR + "/"
-				+ SOUNDPACK_DEFAULT_DIR);
+		File defaultSoundpack = new File(soundPackRoot, SOUNDPACK_DEFAULT_DIR);
 		if (!defaultSoundpack.exists()) {
 			defaultSoundpack.mkdirs();
 		}
@@ -92,6 +93,15 @@ public class Setup {
 			return;
 		}
 		return;
+	}
+
+	public File getSoundpackDir(String soundPackName) throws SoundpackNotPresentException {
+		File out = new File(soundPackRoot, soundPackName);
+		if(out.isDirectory()){
+			return out;
+		} else {
+			throw new SoundpackNotPresentException("Tried to retrieve invalid soundpack dir: "+ out.toString());
+		}
 	}
 
 }
