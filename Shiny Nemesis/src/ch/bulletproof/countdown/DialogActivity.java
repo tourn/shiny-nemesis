@@ -19,6 +19,8 @@ public class DialogActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		new Setup(this).verify();
+		
 		if(getIntent().getBooleanExtra(INTENT_EXTRA_KILL, false)){
 			stopCountdown();
 			finish();
