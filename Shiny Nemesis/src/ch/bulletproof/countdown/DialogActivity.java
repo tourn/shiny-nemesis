@@ -3,7 +3,10 @@ package ch.bulletproof.countdown;
 import java.util.Calendar;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.audiofx.BassBoost.Settings;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -40,7 +43,9 @@ public class DialogActivity extends Activity {
 		hour.setText(getMatchingHour(minute+10)+":");
 		
 		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
+		vibrate.setChecked(getCheckboxStatus(vibrate));
 		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
+		sound.setChecked(getCheckboxStatus(sound));
 		
 		Button goButton = (Button) findViewById(R.id.buttonGo);
 		goButton.setOnClickListener(new OnClickListener() {
@@ -48,6 +53,8 @@ public class DialogActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				numberPicker.clearFocus();
+				storeCheckboxStatus(vibrate);
+				storeCheckboxStatus(sound);
 				startCountdown(numberPicker.getValue(), vibrate.isChecked(), sound.isChecked());
 				finish();
 				
@@ -112,6 +119,20 @@ public class DialogActivity extends Activity {
 	private void stopCountdown(){
 		Intent intent = new Intent(this, CountdownService.class);
 		stopService(intent);
+	}
+	
+	private void storeCheckboxStatus(CheckBox box){
+		SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+		prefs.edit().putBoolean(getStorageKey(box), box.isChecked()).apply();
+	}
+
+	private boolean getCheckboxStatus(CheckBox box){
+		SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+		return prefs.getBoolean(getStorageKey(box), false);
+	}
+	
+	private String getStorageKey(View view){
+		return "ch.bulletproof.view."+view.getId();
 	}
 	
 
