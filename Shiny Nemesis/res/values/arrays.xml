@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="pref_minute_offset_style_titles">
+        <item>Offset current time</item>
+        <item>Remember last entry</item>
+    </array>
+    <array name="pref_minute_offset_style_values">
+        <item>offset</item>
+        <item>remember</item>
+    </array>
+</resources>

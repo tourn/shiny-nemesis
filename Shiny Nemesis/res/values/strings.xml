@@ -10,4 +10,11 @@
     <string name="title_activity_dialog">DialogActivity</string>
     <string name="action_settings">Settings</string>
 
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_title_minute_offset_style">Minute Default Value</string>
+    <string name="pref_title_use_offset">Default time relative to current time</string>
+    <string name="pref_description_use_offset_on">Use offset of current time</string>
+    <string name="pref_description_use_offset_off">Use last entered time</string>
+    <string name="pref_title_minute_offset">Offset current time by X minutes</string>
+
 </resources>

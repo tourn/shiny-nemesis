@@ -16,6 +16,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Holo" >
+
         <!--
         <activity
             android:name="ch.bulletproof.countdown.SelectActivity"
@@ -26,11 +27,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-          -->
+        -->
         <activity
             android:name="ch.bulletproof.countdown.DialogActivity"
-            android:theme="@android:style/Theme.Holo.Dialog"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Holo.Dialog" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,6 +50,10 @@
             android:label="countdownServicE" >
         </service>
 
+        <activity
+            android:name="ch.bulletproof.countdown.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>

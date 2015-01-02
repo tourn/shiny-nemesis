@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.audiofx.BassBoost.Settings;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,10 +38,9 @@ public class DialogActivity extends Activity {
 		final NumberPicker numberPicker = (NumberPicker) findViewById(R.id.minute);
 		numberPicker.setMaxValue(59);
 		numberPicker.setMinValue(0);
-		int minute = Calendar.getInstance().get(Calendar.MINUTE);
-		numberPicker.setValue(minute + 10);
-		
-		hour.setText(getMatchingHour(minute+10)+":");
+		int minute = getMinute();
+		numberPicker.setValue(minute);
+		hour.setText(getMatchingHour(minute)+":");
 		
 		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
 		vibrate.setChecked(getCheckboxStatus(vibrate));
@@ -55,6 +55,7 @@ public class DialogActivity extends Activity {
 				numberPicker.clearFocus();
 				storeCheckboxStatus(vibrate);
 				storeCheckboxStatus(sound);
+				storeMinute(numberPicker.getValue());
 				startCountdown(numberPicker.getValue(), vibrate.isChecked(), sound.isChecked());
 				finish();
 				
@@ -66,6 +67,15 @@ public class DialogActivity extends Activity {
 			@Override
 			public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
 				hour.setText(getMatchingHour(newVal) + ":");
+			}
+		});
+		
+		findViewById(R.id.button_settings).setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(DialogActivity.this, SettingsActivity.class);
+				startActivity(intent);
 			}
 		});
 		
@@ -135,5 +145,24 @@ public class DialogActivity extends Activity {
 		return "ch.bulletproof.view."+view.getId();
 	}
 	
-
+	private boolean isRememberMinute(){
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		return !prefs.getBoolean("use_offset", true);
+	}
+	
+	private void storeMinute(int minute){
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		prefs.edit().putString("minute", Integer.valueOf(minute).toString()).apply();
+	}
+	
+	private int getMinute(){
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if(isRememberMinute()){
+			return Integer.valueOf(prefs.getString("minute", "0"));
+		} else {
+			int offset = Integer.valueOf(prefs.getString("minute_offset", "0"));
+			int minute = Calendar.getInstance().get(Calendar.MINUTE);
+			return (offset + minute) % 60;
+		}
+	}
 }
