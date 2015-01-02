@@ -130,6 +130,7 @@ public class CountdownService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		//TODO prevent multiple execution
 		PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
 		wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
 				"shiny nemesis");
