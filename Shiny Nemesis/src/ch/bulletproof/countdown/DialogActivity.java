@@ -11,6 +11,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.NumberPicker;
+import android.widget.TextView;
+import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.Toast;
 
 public class DialogActivity extends Activity {
@@ -28,11 +30,14 @@ public class DialogActivity extends Activity {
 		}
 		setContentView(R.layout.activity_dialog);
 		
+		final TextView hour = (TextView) findViewById(R.id.hour);
 		final NumberPicker numberPicker = (NumberPicker) findViewById(R.id.minute);
 		numberPicker.setMaxValue(59);
 		numberPicker.setMinValue(0);
 		int minute = Calendar.getInstance().get(Calendar.MINUTE);
 		numberPicker.setValue(minute + 10);
+		
+		hour.setText(getMatchingHour(minute+10)+":");
 		
 		final CheckBox vibrate = (CheckBox) findViewById(R.id.cbVibrate);
 		final CheckBox sound = (CheckBox) findViewById(R.id.cbSound);
@@ -46,6 +51,14 @@ public class DialogActivity extends Activity {
 				startCountdown(numberPicker.getValue(), vibrate.isChecked(), sound.isChecked());
 				finish();
 				
+			}
+		});
+		
+		numberPicker.setOnValueChangedListener(new OnValueChangeListener() {
+			
+			@Override
+			public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+				hour.setText(getMatchingHour(newVal) + ":");
 			}
 		});
 		
@@ -90,6 +103,10 @@ public class DialogActivity extends Activity {
 		out.set(Calendar.SECOND, 0);
 		out.set(Calendar.MINUTE, minute);
 		return out;
+	}
+	
+	private int getMatchingHour(int minute){
+		return getNextMinuteOccurrence(minute).get(Calendar.HOUR_OF_DAY);
 	}
 	
 	private void stopCountdown(){
