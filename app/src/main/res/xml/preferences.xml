@@ -17,4 +17,13 @@
         android:selectAllOnFocus="true"
         android:title="@string/pref_title_minute_offset" />
 
+
+    <EditTextPreference
+        android:defaultValue="12:00"
+        android:inputType="textMultiLine"
+        android:key="instant_times"
+        android:selectAllOnFocus="true"
+        android:title="Instant Times"
+        android:summary="Automatically select the next time of this option, newline separated" />
+
 </PreferenceScreen>

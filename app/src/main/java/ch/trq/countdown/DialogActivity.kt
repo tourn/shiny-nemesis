@@ -12,6 +12,9 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.*
 
 class DialogActivity : AppCompatActivity() {
@@ -35,6 +38,24 @@ class DialogActivity : AppCompatActivity() {
             }
         }
 
+    fun getNextInstantTime(): LocalDateTime? {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val today = LocalDate.now()
+        val instantTimes = prefs.getString("instant_times","")
+            ?.split("\n")
+            ?.filter {it != ""}
+            ?.map {
+                val (hour, minute) = it.split(":")
+                val datetime = today.atTime(hour.toInt(), minute.toInt())
+                if(datetime.isAfter(LocalDateTime.now())) datetime else datetime.plusDays(1)
+            }
+            ?.sorted()
+            ?: listOf()
+
+        Log.i("ME", "IT" + instantTimes.joinToString(","))
+        return instantTimes.firstOrNull()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Setup(this).verify()
@@ -42,12 +63,14 @@ class DialogActivity : AppCompatActivity() {
             stopCountdown()
             finish()
         }
+        val instantTime = getNextInstantTime()
+
         setContentView(R.layout.activity_dialog)
         val hour = findViewById<View>(R.id.hour) as TextView
         val numberPicker = findViewById<View>(R.id.minute) as NumberPicker
         numberPicker.maxValue = 59
         numberPicker.minValue = 0
-        val minute = minute
+        val minute = instantTime?.minute ?: minute
         numberPicker.value = minute
         hour.text = getMatchingHour(minute).toString() + ":"
         val vibrate = findViewById<View>(R.id.cbVibrate) as CheckBox
