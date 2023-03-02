@@ -16,13 +16,14 @@ import ch.trq.countdown.announcer.VibrateAnnouncer
 import java.sql.Date
 import java.util.*
 
-class CountdownService : Service() {
+class CountdownService : Service(), TextToSpeech.OnInitListener {
+    private lateinit var remainingMessage: String;
+    private var ttobj: TextToSpeech? = null
     private var timer: Timer? = null
     private var wakeLock: WakeLock? = null
     private var notificationManger: NotificationManager? = null
     private var countdownTimer: CountDownTimer? = null
     override fun onBind(intent: Intent): IBinder? {
-        // TODO Auto-generated method stub
         return null
     }
 
@@ -102,14 +103,25 @@ class CountdownService : Service() {
         scheduleSounds(endTime, vibrate, sound)
         Log.d(LOG_TAG, "Starting Countdown Service in Foreground")
         startForeground(1, buildNotification(endTime))
+        remainingMessage = getFormattedTimeRemaining(endTime) + " remaining"
+        if(sound){
+            ttobj = TextToSpeech(this, this)
+        }
         Toast.makeText(
-            this, getFormattedTimeRemaining(endTime) + " remaining",
+            this, remainingMessage,
             Toast.LENGTH_SHORT
         ).show()
         return super.onStartCommand(intent, flags, startId)
     }
 
-    override fun onCreate() {}
+    override fun onCreate() {
+    }
+
+
+    override fun onInit(p0: Int) {
+        Log.i("TTS", if (p0 == TextToSpeech.SUCCESS) "SUCCESS" else "NOT: ${p0}")
+        ttobj?.speak(remainingMessage, TextToSpeech.QUEUE_FLUSH, null)
+    }
     private fun buildNotification(endTime: Long): Notification {
         if(notificationManger == null){
             throw Exception("BLEH")
@@ -148,6 +160,7 @@ class CountdownService : Service() {
         timer!!.cancel()
         countdownTimer!!.cancel()
         if (wakeLock!!.isHeld) wakeLock!!.release()
+        ttobj?.shutdown()
         super.onDestroy()
     }
 
