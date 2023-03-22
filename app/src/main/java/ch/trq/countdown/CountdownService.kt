@@ -9,17 +9,20 @@ import android.os.PowerManager.WakeLock
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.widget.Toast
-import ch.trq.countdown.DialogActivity
 import ch.trq.countdown.announcer.Announcer
 import ch.trq.countdown.announcer.SoundAnnouncer
 import ch.trq.countdown.announcer.VibrateAnnouncer
 import java.sql.Date
 import java.util.*
 
+private const val NOTIFICATION_ID = 1
+private const val channelId = "timer"
+
 class CountdownService : Service(), TextToSpeech.OnInitListener {
+    private lateinit var builder: Notification.Builder
     private lateinit var remainingMessage: String;
     private var ttobj: TextToSpeech? = null
-    private var timer: Timer? = null
+    private var timer: Timer = Timer()
     private var wakeLock: WakeLock? = null
     private var notificationManger: NotificationManager? = null
     private var countdownTimer: CountDownTimer? = null
@@ -38,8 +41,6 @@ class CountdownService : Service(), TextToSpeech.OnInitListener {
         endTime: Long, vibrate: Boolean,
         sound: Boolean
     ) {
-        timer = Timer()
-        notificationManger = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         val announcers: MutableList<Announcer> = ArrayList()
         if (vibrate) {
             announcers.add(VibrateAnnouncer(this))
@@ -82,7 +83,7 @@ class CountdownService : Service(), TextToSpeech.OnInitListener {
             override fun onTick(millisUntilFinished: Long) {
                 val remainingTime = Calendar.getInstance()
                 remainingTime.timeInMillis = millisUntilFinished - 1000
-                notificationManger!!.notify(1, buildNotification(endTime))
+                notificationManger!!.notify(NOTIFICATION_ID, buildNotification(endTime))
             }
 
             override fun onFinish() {}
@@ -96,13 +97,38 @@ class CountdownService : Service(), TextToSpeech.OnInitListener {
             PowerManager.PARTIAL_WAKE_LOCK,
             "ch.trq.countdown:countdownlock"
         )
-        wakeLock?.acquire(10*60*1000L /*10 minutes*/)
+        wakeLock?.acquire(30*60*1000L /*30 minutes*/)
+
+        notificationManger = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        if(notificationManger == null){
+            throw Exception("BLEH")
+        }
+        notificationManger
+            ?.createNotificationChannel(NotificationChannel(channelId, "Timer Service", NotificationManager.IMPORTANCE_NONE))
+
+        val notificationIntent = Intent(this, DialogActivity::class.java)
+        notificationIntent.putExtra(DialogActivity.INTENT_EXTRA_KILL, true)
+        val contentIntent = PendingIntent.getActivity(
+            this, 0,
+            notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        this.builder = Notification.Builder(
+            this, channelId
+        ).setContentIntent(contentIntent)
+            .setSmallIcon(R.drawable.ic_stat_general).setOngoing(true)
+            .setContentTitle(getString(R.string.app_name))
+
         val endTime = intent.getLongExtra(EXTRA_END_TIME, -1)
         val vibrate = intent.getBooleanExtra(EXTRA_VIBRATE, false)
         val sound = intent.getBooleanExtra(EXTRA_SOUND, false)
         scheduleSounds(endTime, vibrate, sound)
         Log.d(LOG_TAG, "Starting Countdown Service in Foreground")
-        startForeground(1, buildNotification(endTime))
+        startForeground(NOTIFICATION_ID, buildNotification(endTime))
+        timer!!.schedule(object : TimerTask() {
+            override fun run() {
+                notificationManger!!.notify(NOTIFICATION_ID, buildNotification(endTime))
+            }
+        }, 1000)
         remainingMessage = getFormattedTimeRemaining(endTime) + " remaining"
         if(sound){
             ttobj = TextToSpeech(this, this)
@@ -121,28 +147,12 @@ class CountdownService : Service(), TextToSpeech.OnInitListener {
     override fun onInit(p0: Int) {
         Log.i("TTS", if (p0 == TextToSpeech.SUCCESS) "SUCCESS" else "NOT: ${p0}")
         ttobj?.speak(remainingMessage, TextToSpeech.QUEUE_FLUSH, null)
+
     }
     private fun buildNotification(endTime: Long): Notification {
-        if(notificationManger == null){
-            throw Exception("BLEH")
-        }
-        val channelId = "timer"
-        notificationManger
-            ?.createNotificationChannel(NotificationChannel(channelId, "Timer Service", NotificationManager.IMPORTANCE_NONE))
-
-        val remainingString = getFormattedTimeRemaining(endTime)
-        val notificationIntent = Intent(this, DialogActivity::class.java)
-        notificationIntent.putExtra(DialogActivity.INTENT_EXTRA_KILL, true)
-        val contentIntent = PendingIntent.getActivity(
-            this, 0,
-            notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val builder = Notification.Builder(
-            this, channelId
-        ).setContentTitle(getString(R.string.app_name))
-            .setContentText("$remainingString left. Tap to cancel.")
-            .setSmallIcon(R.drawable.ic_stat_general).setOngoing(true)
-            .setWhen(endTime).setContentIntent(contentIntent)
+        builder
+            .setContentText("${getFormattedTimeRemaining(endTime)} left. Tap to cancel.")
+            .setWhen(endTime)
         return builder.build()
     }
 
@@ -178,7 +188,7 @@ class CountdownService : Service(), TextToSpeech.OnInitListener {
          */
         fun secondsAsString(seconds: Int): String {
             val out = Integer.valueOf(seconds).toString()
-            return if (out.length == 1) "0$out" else out
+            return if (out.length == NOTIFICATION_ID) "0$out" else out
         }
     }
 }
