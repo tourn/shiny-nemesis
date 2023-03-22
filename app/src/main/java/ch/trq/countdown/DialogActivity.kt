@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class DialogActivity : AppCompatActivity() {
@@ -49,11 +50,15 @@ class DialogActivity : AppCompatActivity() {
                 val datetime = today.atTime(hour.toInt(), minute.toInt())
                 if(datetime.isAfter(LocalDateTime.now())) datetime else datetime.plusDays(1)
             }
+            ?.filter{
+                ChronoUnit.HOURS.between(LocalDateTime.now(), it) < 1
+            }
             ?.sorted()
             ?: listOf()
 
-        Log.i("ME", "IT" + instantTimes.joinToString(","))
-        return instantTimes.firstOrNull()
+        val next = instantTimes.firstOrNull()
+        Log.i("ME", "Next InstantTime: " + next)
+        return next;
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,6 +68,7 @@ class DialogActivity : AppCompatActivity() {
             stopCountdown()
             finish()
         }
+        Log.i("INTENTDATA", intent.data?.toString() ?: "NONE")
         val instantTime = getNextInstantTime()
 
         setContentView(R.layout.activity_dialog)
@@ -78,6 +84,13 @@ class DialogActivity : AppCompatActivity() {
         val sound = findViewById<View>(R.id.cbSound) as CheckBox
         sound.isChecked = getCheckboxStatus(sound)
         val goButton = findViewById<View>(R.id.buttonGo) as Button
+
+        if (intent.getBooleanExtra(INTENT_INSTANT_START, false) || intent.data?.toString() == "hello") {
+            if(startCountdown(minute, vibrate = false, sound = true)){
+                finish()
+            }
+        }
+
         goButton.setOnClickListener {
             numberPicker.clearFocus()
             storeCheckboxStatus(vibrate)
@@ -194,6 +207,7 @@ class DialogActivity : AppCompatActivity() {
         }
 
     companion object {
-        const val INTENT_EXTRA_KILL = "ch.bulletproof.countdown.DialogActivity.kill"
+        const val INTENT_EXTRA_KILL = "ch.trq.countdown.DialogActivity.kill"
+        const val INTENT_INSTANT_START = "ch.trq.countdown.DialogActivity.instantStart"
     }
 }
