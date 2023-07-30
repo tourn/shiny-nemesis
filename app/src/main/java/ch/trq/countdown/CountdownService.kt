@@ -109,8 +109,10 @@ class CountdownService : Service(), TextToSpeech.OnInitListener {
         val notificationIntent = Intent(this, DialogActivity::class.java)
         notificationIntent.putExtra(DialogActivity.INTENT_EXTRA_KILL, true)
         val contentIntent = PendingIntent.getActivity(
-            this, 0,
-            notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT
+            this,
+            0,
+            notificationIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         this.builder = Notification.Builder(
             this, channelId
